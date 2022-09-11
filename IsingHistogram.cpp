@@ -375,7 +375,7 @@ main()
     float H; const float J = 1.0;
     float T; int D; int max_sweeps; int print_mags_to_console; int print_first_lattice;
     int flip; float r; int de_index; int he_index; float delta_e; float h_e;
-    std::vector<float> ave_mag_storage; std::vector<float> ave_Mag_storage;
+    std::vector<float> mag_storage; std::vector<float> Mag_storage;
 
     std::cout << "Input Seed: ";
     std::cin >> seed;
@@ -428,7 +428,7 @@ main()
     // starting counter from 1 so I can take the modulous and output how many sweeps the simulation has completed, that way I know
     // it's still working.
     for (int s = 1; s < (max_sweeps + 1); s++) {
-        std::vector<float> swe_mag_storage; std::vector<float> swe_Mag_storage;
+        // std::vector<float> swe_mag_storage; std::vector<float> swe_Mag_storage;
         for (int j = 0; j < sweep_steps; j++){
             r = random_int(0, D); int c = random_int(0, D);
 
@@ -450,8 +450,8 @@ main()
             //     // std::cout << "--- Flipping Spin ---" << std::endl;
             // }
 
-            swe_mag_storage.push_back(ising_lattice.mag); // store each mag for averaging later
-            swe_Mag_storage.push_back(ising_lattice.Mag); // store each Mag for averaging later
+            mag_storage.push_back(ising_lattice.mag); // store each mag for averaging later
+            Mag_storage.push_back(ising_lattice.Mag); // store each Mag for averaging later
 
             // std::cout << "S: " << s <<" R = " << r << " C = " << c << std::endl;
             // std::cout << "J-E (Index) = " << de_index << "\tH-E (Index) = " << he_index << "\tDelta-E = " << delta_e <<  std::endl;
@@ -464,8 +464,8 @@ main()
             // pause_for_input();
         }
 
-        ave_mag_storage.push_back(ave_vector(swe_mag_storage));
-        ave_Mag_storage.push_back(ave_vector(swe_Mag_storage));
+        // ave_mag_storage.push_back(ave_vector(swe_mag_storage));
+        // ave_Mag_storage.push_back(ave_vector(swe_Mag_storage));
         // // In case you want to see when the steps are completed. Useful for knowing it's still working.
         // std::cout << "Completed Sweep " << s << std::endl;
 
@@ -473,14 +473,14 @@ main()
 
     if (print_mags_to_console == 1) {    
         std::cout << "Magnitization\tMagnitization per spin" << std::endl;
-        for (int i = 0; i < ave_Mag_storage.size(); i++) {
-            std::cout << ave_Mag_storage[i] << "\t\t" << ave_mag_storage[i] << std::endl;
+        for (int i = 0; i < Mag_storage.size(); i++) {
+            std::cout << Mag_storage[i] << "\t\t" << mag_storage[i] << std::endl;
         }
     }
 
     std::string filename = "magMag_Temp_" + std::to_string(T) + "_Size_" + std::to_string(D) + "x" + std::to_string(D) + "_seed_" + std::to_string(seed) + ".csv";
 
-    write_mags_csv(filename, ave_Mag_storage, ave_mag_storage);
+    write_mags_csv(filename, Mag_storage, mag_storage);
     std::cout << "Mag and mag were output to the file " << filename << std::endl;
 
 
