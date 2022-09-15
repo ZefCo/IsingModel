@@ -381,18 +381,53 @@ public:
 
 
 
-// writes the Mag and mag to a csv file
-void write_csv(std::string filename, std::vector<float> Mags, std::vector<float> mags) { //, std::vector<float> Energy, std::vector<float> energy) {
-    std::ofstream fileout(filename);
+// writes the Mag and mag to a csv file. Do not include the .csv portion of the filename, that will be added later
+void write_csv(std::string master_filename, std::vector<float> Mags, std::vector<float> mags) { //, std::vector<float> Energy, std::vector<float> energy) {
 
-    fileout << "quarter,M,m\n";//,E,e\n";
+    int Lmod = 1000000;
+    int L = Mags.size(); // this really only works if Mag and mags are the same size, which they should be.
 
-    for (float i = 0; i < Mags.size(); i++) {
-        float index = ((i + 1) / 4);
-        fileout << index << "," << Mags.at(i) << "," << mags.at(i) << "\n"; //"," << Energy.at(i) << "," << energy.at(i) << "\n";
+    int iters = 1;
+    int DL = L - Lmod;
+    int extra_iters = DL % Lmod;
+    // std::cout << "L" << i << " = " << L << std::endl;
+
+    while (DL > 0) {
+        extra_iters = DL % Lmod;
+        DL -= Lmod;
+        iters += 1;
     }
 
-    fileout.close();
+    int start = 0;
+    int end;
+    for (int I = 0; I < iters; I++) {
+        std::string filename = master_filename + "_part_" + std::to_string(I + 1) + ".csv";
+        std::ofstream fileout(filename);
+
+        if (((I + 1) >= iters) && (extra_iters > 0)) {
+            end = start + extra_iters - 1;
+            std::cout << "writing file part " << I + 1 << " with excess iters " << extra_iters << std::endl;
+            std::cout << "Start = " << start << " End = " << end << std::endl;
+
+        }
+        else if (extra_iters < 0) {
+            end = start + Lmod + extra_iters - 1;
+            std::cout << "writing file part " << I + 1 << " with excess iters " << Lmod + extra_iters << std::endl;
+            std::cout << "Start = " << start << " End = " << end << std::endl;
+        }
+        else {
+            end = start + Lmod - 1;
+            std::cout << "writing file part " << I + 1 << std::endl;
+            std::cout << "Start = " << start << " End = " << end << std::endl;
+        }
+
+        fileout << "quarter,M,m\n";//,E,e\n";
+        for (long i = start; i < end; i++) {
+            long index = ((i + 1) / 1);
+            fileout << index << "," << Mags.at(i) << "," << mags.at(i) << "\n"; //"," << Energy.at(i) << "," << energy.at(i) << "\n";
+        }
+        start += Lmod;
+    }
 }
 
 
@@ -403,39 +438,47 @@ main()
 
     const float J = 1.0; 
     float T, H, r, delta_e, h_e; 
-    int D, max_sweeps, print_first_lattice, print_final_lattice;
+    int D, print_first_lattice, print_final_lattice, partial;
     int flip, de_index, he_index;
-    long init_seed;
+    long init_seed, max_sweeps;
     // std::vector<float> ave_mag_storage; std::vector<float> ave_Mag_storage;
     std::vector<float> mag_storage, Mag_storage; // , energy_storage, Energy_storage;
 
     std::cout << "Input Seed: ";
     std::cin >> seed;
+    fflush(stdin);
+
     init_seed = seed;
 
     std::cout << "Input Dimensions of the lattice: RxC" << std::endl;
     std::cout << "Square Lattice Dimensions (M x M): ";
     std::cin >> D;
+    fflush(stdin);
+
     // Total number of spins, and steps that make up one sweep
-    int sweep_steps = D*D;
+    long sweep_steps = D*D;
     
     std::cout << "Input the Tempurature: ";
     std::cin >> T;
+    fflush(stdin);
+
     std::cout << "Input External Magnetic Field: ";
     std::cin >> H;
+    fflush(stdin);
 
     std::cout << "Input the Maximum Number of SWEEPS\nSweep for this lattice would be " << D*D  << " Steps\nSweeps: ";
     std::cin >> max_sweeps;
-
+    fflush(stdin);
 
     std::cout << "\nInputs:" << std::endl;
     std::cout << "Seed: " << seed << std::endl;
     std::cout << "Dimensions of Lattice: " << D << " x " << D << std::endl;
     std::cout << "Tempurature: " << T << "\tB Field: " << H << "\tJ = k (1, dimensionless)" << std::endl;
-    std::cout << "Sweeps: " << max_sweeps << "\tTotal Steps: " << max_sweeps * sweep_steps << std::endl;
-    std::cout << "Measurement will be taken every QUARTER sweep" << std::endl;
+    std::cout << "Sweeps: " << max_sweeps << std::endl;
+    std::cout << "Measurement will be taken every 1/" << partial << "sweep" << std::endl;
 
-    // pause_for_input();
+    // this part can be used for doing 1, 2, 4, passes.
+    partial = 1;
 
     IsingLattice ising_lattice(D, D, T, J, H);
 
@@ -447,6 +490,7 @@ main()
 
     std::cout << "\nDo you wish to see the inital lattice? 1 for yes 0 for no: ";
     std::cin >> print_first_lattice;
+    fflush(stdin);
 
     if (print_first_lattice == 1) {
             std::cout << "Initial Lattice" << std::endl;
@@ -459,6 +503,7 @@ main()
     // std::cin >> print_mags_to_console;
     std::cout << "\nDo you wish to see the final Lattice at the end?\n1 for yes, 0 for no: ";
     std::cin >> print_final_lattice;
+    fflush(stdin);
 
     std::cout << "Ready to begin simulation" << std::endl;
     pause_for_input();
@@ -467,9 +512,9 @@ main()
     // it's still working.
     for (int s = 1; s < (max_sweeps + 1); s++) {
         std::vector<float> swe_mag_storage; std::vector<float> swe_Mag_storage;
-        // Taking the measurement every 1/4 sweep. Doing a for loop in a for loop makes the most sense
-        for (int q = 1; q <=4; q++) {
-            for (int j = 0; j < (sweep_steps / 4); j++){
+        // Taking the measurement every 1/n sweep. Doing a for loop in a for loop makes the most sense
+        for (int q = 1; q <=partial; q++) {
+            for (int j = 0; j < (sweep_steps / partial); j++){
                 r = random_int(0, D); int c = random_int(0, D);
 
                 de_index = ising_lattice.DeltaEnergy(r, c);  // These two actually do *not* return the energy, but instead return the key to the values of their energy
@@ -540,10 +585,10 @@ main()
         ising_lattice.print_lattice();
     }
 
-    std::string filename = "mME_Temp_" + std::to_string(T) + "_Size_" + std::to_string(D) + "x" + std::to_string(D) + "_seed_" + std::to_string(init_seed) + "_sweeps_" + std::to_string(max_sweeps) + ".csv";
+    std::string filename = "mME_Temp_" + std::to_string(T) + "_Size_" + std::to_string(D) + "x" + std::to_string(D) + "_seed_" + std::to_string(init_seed) + "_sweeps_" + std::to_string(max_sweeps);
 
     write_csv(filename, Mag_storage, mag_storage); //, Energy_storage, energy_storage);
-    std::cout << "Mag, mag, E, and e were output to the file " << filename << std::endl;
+    // std::cout << "Mag, mag, E, and e were output to the file " << filename << std::endl;
 
 
 }

@@ -48,6 +48,22 @@
         "map": "cpp",
         "xtree": "cpp",
         "stdio.h": "c",
-        "math.h": "c"
+        "math.h": "c",
+        "chrono": "cpp",
+        "complex": "cpp",
+        "filesystem": "cpp",
+        "fstream": "cpp",
+        "iomanip": "cpp",
+        "list": "cpp",
+        "locale": "cpp",
+        "numeric": "cpp",
+        "ratio": "cpp",
+        "sstream": "cpp",
+        "string": "cpp",
+        "valarray": "cpp",
+        "xlocbuf": "cpp",
+        "xlocmes": "cpp",
+        "xlocmon": "cpp",
+        "xloctime": "cpp"
     }
 }
