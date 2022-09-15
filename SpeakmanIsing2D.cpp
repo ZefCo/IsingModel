@@ -6,10 +6,10 @@
 # include <fstream>
 # include <numeric>
 # include <string>
-# include "numRec.h"
+// # include "numRec.h"
 
 // Declaring seed to be a global variable. Trying to avoid declaring anything else as global
-int seed;
+long seed;
 
 
 /* RAN2 from Numerical Methods in C
@@ -17,81 +17,81 @@ Keeping this here in case I want to use it. It works, but it works differently t
 as given by Dr. Bassler. The ran2 used here is from Numerical Recipies in C++, which is written by the same people but as you can see uses some values differently.
 **/
 // definitions for ran2
-// # define IM1 2147483563
-// # define IM2 2147483399
-// # define AM (1.0/IM1)
-// # define IMM1 (IM1-1)
-// # define IA1 40014
-// # define IA2 40692
-// # define IQ1 53668
-// # define IQ2 52774
-// # define IR1 12211
-// # define IR2 3791
-// # define NTAB 32
-// # define NDIV (1+IMM1/NTAB)
-// # define EPS 1.2e-7
-// # define RNMX (1.0-EPS)
+# define IM1 2147483563
+# define IM2 2147483399
+# define AM (1.0/IM1)
+# define IMM1 (IM1-1)
+# define IA1 40014
+# define IA2 40692
+# define IQ1 53668
+# define IQ2 52774
+# define IR1 12211
+# define IR2 3791
+# define NTAB 32
+# define NDIV (1+IMM1/NTAB)
+# define EPS 1.2e-7
+# define RNMX (1.0-EPS)
 
-// // ran2, copied from page 282 of Numerical Recipies (defines at top)
-// float ran2(long *idum)
-// {
+// ran2, copied from page 282 of Numerical Recipies (defines at top)
+float ran2(long *idum)
+{
 
-//     int j;
-//     long k;
-//     static long idum2 = 123456789;
-//     static long iy = 0;
-//     static long iv[NTAB];
-//     float temp;
+    int j;
+    long k;
+    static long idum2 = 123456789;
+    static long iy = 0;
+    static long iv[NTAB];
+    float temp;
 
-//     if (*idum <= 0) {                     // This just initilzes
-//         if (-(*idum) < 1) *idum = 1;  // prevents idum from being 0
-//         else *idum = -(*idum);
+    if (*idum <= 0) {                     // This just initilzes
+        if (-(*idum) < 1) *idum = 1;  // prevents idum from being 0
+        else *idum = -(*idum);
 
-//         idum2 = (*idum);
+        idum2 = (*idum);
 
-//         for (j = NTAB + 7; j >=0; j--) {  // shuffles the values
-//             k = (*idum) / IQ1;
-//             *idum = IA1 * (*idum - k*IQ1) - k*IR1;  // pretty sure this is *idum - (k*IQ1), hence the lack of spacing
-//             if (*idum < 0) *idum += IM1; 
-//             if (j < NTAB) iv[j] = *idum;
-//         }
-//         iy = iv[0];
-//     }
+        for (j = NTAB + 7; j >=0; j--) {  // shuffles the values
+            k = (*idum) / IQ1;
+            *idum = IA1 * (*idum - k*IQ1) - k*IR1;  // pretty sure this is *idum - (k*IQ1), hence the lack of spacing
+            if (*idum < 0) *idum += IM1; 
+            if (j < NTAB) iv[j] = *idum;
+        }
+        iy = iv[0];
+    }
 
-//     k = (*idum) / IQ1;
-//     *idum = IA1 * (*idum - k*IQ1) - k*IQ1;
+    k = (*idum) / IQ1;
+    *idum = IA1 * (*idum - k*IQ1) - k*IQ1;
 
-//     if (*idum < 0) *idum += IM1;
+    if (*idum < 0) *idum += IM1;
 
-//     k = idum2 / IQ2;
-//     idum2 = IA2 * (idum2 - k*IQ2) - k*IQ2;
+    k = idum2 / IQ2;
+    idum2 = IA2 * (idum2 - k*IQ2) - k*IQ2;
 
-//     if (idum2 < 0) idum2 += IM2;
+    if (idum2 < 0) idum2 += IM2;
 
-//     j = iy / NDIV;
-//     iy = iv[j] - idum2;
-//     iv[j] = *idum;
+    j = iy / NDIV;
+    iy = iv[j] - idum2;
+    iv[j] = *idum;
 
-//     if (iy < 1) iy += IMM1;
-//     if ((temp = AM* iy) > RNMX) return RNMX;
-//     else return temp;
+    if (iy < 1) iy += IMM1;
+    if ((temp = AM* iy) > RNMX) return RNMX;
+    else return temp;
 
-// }
+}
 
-// #undef IM1
-// #undef IM2
-// #undef AM
-// #undef IMM1
-// #undef IA1
-// #undef IA2
-// #undef IQ1
-// #undef IQ2
-// #undef IR1
-// #undef IR2
-// #undef NTAB
-// #undef NDIV
-// #undef EPS
-// #undef RNMX
+#undef IM1
+#undef IM2
+#undef AM
+#undef IMM1
+#undef IA1
+#undef IA2
+#undef IQ1
+#undef IQ2
+#undef IR1
+#undef IR2
+#undef NTAB
+#undef NDIV
+#undef EPS
+#undef RNMX
 
 
 
@@ -100,7 +100,7 @@ as given by Dr. Bassler. The ran2 used here is from Numerical Recipies in C++, w
 int random_int(int min = 0, int max = 2)
 {
 
-    float rval = NR::ran2(seed);
+    float rval = ran2(&seed);
     int i = min + ((max - min) * rval);
     // std::cout << "Rval: " << rval << " Rnt: " << i << std::endl;
 
@@ -141,7 +141,7 @@ int flip_spin(float delta_e)
 {
     int flip = 1;
 
-    float roll = NR::ran2(seed);
+    float roll = ran2(&seed);
     if (roll < delta_e) {flip = -1;}
 
     return flip;
@@ -277,7 +277,7 @@ private:
 
 public:
 
-    float energy, Energy; 
+    float energy; //, Energy; 
     float mag, Mag;
     std::vector<std::vector<int>> lattice;
 
@@ -320,8 +320,8 @@ public:
             lattice[row][col] = lattice[row][col] * flip;
             Mag = Mag + (2 * lattice[row][col]);
             mag = Mag / get_total_spins();
-            Energy = Energy + e_mu;
-            energy = Energy / get_total_spins();
+            // Energy = Energy + e_mu;
+            // energy = Energy / get_total_spins();
         }
 
     }
@@ -372,8 +372,8 @@ public:
 
         Mag = init_magnitization();
         mag = Mag / (get_total_spins());
-        Energy = init_energy();
-        energy = Energy / (get_total_spins());
+        // Energy = init_energy();
+        // energy = Energy / (get_total_spins());
 
     };
 
@@ -382,14 +382,14 @@ public:
 
 
 // writes the Mag and mag to a csv file
-void write_csv(std::string filename, std::vector<float> Mags, std::vector<float> mags, std::vector<float> Energy, std::vector<float> energy) {
+void write_csv(std::string filename, std::vector<float> Mags, std::vector<float> mags) { //, std::vector<float> Energy, std::vector<float> energy) {
     std::ofstream fileout(filename);
 
-    fileout << "quarter,M,m,E,e\n";
+    fileout << "quarter,M,m\n";//,E,e\n";
 
     for (float i = 0; i < Mags.size(); i++) {
         float index = ((i + 1) / 4);
-        fileout << index << "," << Mags.at(i) << "," << mags.at(i) << "," << Energy.at(i) << "," << energy.at(i) << "\n";
+        fileout << index << "," << Mags.at(i) << "," << mags.at(i) << "\n"; //"," << Energy.at(i) << "," << energy.at(i) << "\n";
     }
 
     fileout.close();
@@ -405,9 +405,9 @@ main()
     float T, H, r, delta_e, h_e; 
     int D, max_sweeps, print_first_lattice, print_final_lattice;
     int flip, de_index, he_index;
-    int init_seed;
+    long init_seed;
     // std::vector<float> ave_mag_storage; std::vector<float> ave_Mag_storage;
-    std::vector<float> mag_storage, Mag_storage, energy_storage, Energy_storage;
+    std::vector<float> mag_storage, Mag_storage; // , energy_storage, Energy_storage;
 
     std::cout << "Input Seed: ";
     std::cin >> seed;
@@ -442,7 +442,7 @@ main()
 
     std::cout << "Total Spins: " << ising_lattice.get_total_spins() << std::endl;
     std::cout << "Initial Mag: " << ising_lattice.Mag << "\tInitial Mag per Spin: " << ising_lattice.mag << std::endl;
-    std::cout << "Initial Energy: " << ising_lattice.Energy << std::endl;
+    // std::cout << "Initial Energy: " << ising_lattice.Energy << std::endl;
     // ising_lattice.print_boltzman();
 
     std::cout << "\nDo you wish to see the inital lattice? 1 for yes 0 for no: ";
@@ -512,14 +512,19 @@ main()
             // So I can just grab the last value
             mag_storage.push_back(ising_lattice.mag);
             Mag_storage.push_back(ising_lattice.Mag);
-            energy_storage.push_back(ising_lattice.energy);
-            Energy_storage.push_back(ising_lattice.Energy);
+            // energy_storage.push_back(ising_lattice.energy);
+            // Energy_storage.push_back(ising_lattice.Energy);
 
             // // In case you want to see when the steps are completed. Useful for knowing it's still working.
             // std::cout << "Completed Sweep " << s << std::endl;
             // std::cout << "Random Seed to this point " << seed << std::endl;
         }
         // exit(0);
+        // Just to make sure it's working
+        if ((s % 100000) == 0) {
+            std::cout << "Complted Sweep " << s << std::endl;
+        }
+
 
     }
 
@@ -537,7 +542,7 @@ main()
 
     std::string filename = "mME_Temp_" + std::to_string(T) + "_Size_" + std::to_string(D) + "x" + std::to_string(D) + "_seed_" + std::to_string(init_seed) + "_sweeps_" + std::to_string(max_sweeps) + ".csv";
 
-    write_csv(filename, Mag_storage, mag_storage, Energy_storage, energy_storage);
+    write_csv(filename, Mag_storage, mag_storage); //, Energy_storage, energy_storage);
     std::cout << "Mag, mag, E, and e were output to the file " << filename << std::endl;
 
 
