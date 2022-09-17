@@ -4,6 +4,7 @@
 #include <string>
 #include <filesystem>
 #include <vector>
+#include "csv.h"
 namespace fs = std::filesystem;
 
 
@@ -84,24 +85,31 @@ csvFile parsecsv(std::string testfile, csvFile dataframe) {
 
 main() {
     std::string testfile, testline;
-    csvFile mM;
-    std::vector<long> index;
-    // std::vector<int> Mag;
-    // std::vector<float> mag;
+    // csvFile mM;
+    // std::vector<long> index;
+    // // std::vector<int> Mag;
+    // // std::vector<float> mag;
     
     testfile = "D:\\Coding\\Cpp\\IsingModel\\DataFiles\\Test.csv";
 
-    std::cout << testfile << std::endl;
+    // std::cout << testfile << std::endl;
 
-    mM = parsecsv(testfile, mM);
+    // mM = parsecsv(testfile, mM);
 
-    for (int i = 0; i < mM.index.size(); i++) {
-        std::cout << "Index = " << mM.index.at(i) << "\tM = " << mM.M.at(i) << "\tm = " << mM.m.at(i) << std::endl; 
-    }
-
-    // do {
-    //     currentline = getline(InFile, testline, ',');
-    //     std::cout << currentline;
+    // for (int i = 0; i < mM.index.size(); i++) {
+    //     std::cout << "Index = " << mM.index.at(i) << "\tM = " << mM.M.at(i) << "\tm = " << mM.m.at(i) << std::endl; 
     // }
+
+    // // do {
+    // //     currentline = getline(InFile, testline, ',');
+    // //     std::cout << currentline;
+    // // }
+
+    io::CSVReader<3> in(testfile);
+    in.read_header(io::ignore_extra_column, "vendor", "size", "speed");
+    std::string vendor; int size; double speed;
+    while(in.read_row(vendor, size, speed)){
+        
+  }
 
 }

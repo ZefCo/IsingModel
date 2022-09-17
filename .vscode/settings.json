@@ -64,6 +64,9 @@
         "xlocbuf": "cpp",
         "xlocmes": "cpp",
         "xlocmon": "cpp",
-        "xloctime": "cpp"
+        "xloctime": "cpp",
+        "condition_variable": "cpp",
+        "mutex": "cpp",
+        "thread": "cpp"
     }
 }

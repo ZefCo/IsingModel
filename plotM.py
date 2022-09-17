@@ -27,7 +27,7 @@ csv_folder = pathlib.Path.cwd() / "DataFiles"
 
 # # temps = []
 monte_files = pandas.DataFrame()
-eonte_files = pandas.DataFrame()
+# eonte_files = pandas.DataFrame()
 # scat_files = pandas.DataFrame()
 for thing in csv_folder.iterdir():
     # print(type(thing))
@@ -46,17 +46,17 @@ for thing in csv_folder.iterdir():
             thing_data = pandas.read_csv(thing_file, header = 0)
 
         m_data = pandas.Series(thing_data["m"].to_list(), name = title, index = thing_data["quarter"])
-        e_data = pandas.Series(thing_data["E"].to_list(), name = title, index = thing_data["quarter"])
+        # e_data = pandas.Series(thing_data["E"].to_list(), name = title, index = thing_data["quarter"])
         # print(data_series)
 
         monte_files = pandas.concat([monte_files, m_data.to_frame().T])
-        eonte_files = pandas.concat([eonte_files, e_data.to_frame().T])
+        # eonte_files = pandas.concat([eonte_files, e_data.to_frame().T])
 
 
 monte_files = monte_files.T
 # monte_files = monte_files / monte_files.sum(axis=0)
 # monte_files.index = list(thing_data.index)
-eonte_files = eonte_files.T
+# eonte_files = eonte_files.T
 
 
 # Everything should be the same size that gets dumped into the folder, so I can take the last of the histbins, which
@@ -96,13 +96,13 @@ his.show()
 sca.show()
 
 
-# legends = []
-sca = go.Figure()
-for title in list(eonte_files.columns):
-    sca.add_trace(go.Scatter(x = list(eonte_files.index), y = eonte_files[title], name = title))
+# # legends = []
+# sca = go.Figure()
+# for title in list(eonte_files.columns):
+#     sca.add_trace(go.Scatter(x = list(eonte_files.index), y = eonte_files[title], name = title))
 
-sca.update_layout(title = "E per sweep")
-sca.update_xaxes(title_text = "[Quarter] Sweep")
-sca.update_yaxes(title_text = "E")
+# sca.update_layout(title = "E per sweep")
+# sca.update_xaxes(title_text = "[Quarter] Sweep")
+# sca.update_yaxes(title_text = "E")
 
-sca.show()
+# sca.show()
