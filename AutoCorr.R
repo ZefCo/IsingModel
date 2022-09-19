@@ -89,5 +89,10 @@ colnames(xframe) <- xnames
 rownames(xframe) <- t
 xframe$temp <- rownames(xframe)
 
-hail_mary <- ggplot(data = xframe, aes(x = temp, y = xframe$T2_4k, group = 1)) + geom_line()
+colnames(xframe) <- c("a", "b", "c", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", 'r', "s", "t", "u", "v", "w")
+othernames <- xnames
+othernames[length(othernames) + 1] <- "temp"
+colnames(xframe) <- othernames
+
+hail_mary <- ggplot(data = xframe, aes(x = temp, y = T2_4K, group = 1)) + geom_line()
 print(hail_mary)

@@ -39,4 +39,4 @@ for (i in 1:length(rootfolder)) {
 colnames(ave_frame) <- c("mean", "abs", "square")
 rownames(ave_frame) <- ave_names
 
-write.csv(ave_frame, "D:\\Coding\\Cpp\\IsingModel\\AveMnofilter.csv")
+write.csv(ave_frame, "D:\\Coding\\Cpp\\IsingModel\\AveMTest.csv")

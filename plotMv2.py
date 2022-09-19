@@ -34,6 +34,7 @@ for subfolder in csv_folder.iterdir():
         his.update_layout(title = f"M per spin @ {temp_name}")
 
         his.show()
+        plotly.io.write_image(his, pathlib.Path.cwd() / "DataFiles" / f"Hist_{temp_name}.pdf")
 
 
 

@@ -5,7 +5,8 @@ library("dplyr")
 library('ggplot2')
 
 # ave_frame <- read.csv("D:\\Coding\\Cpp\\IsingModel\\AveM.csv")
-ave_frame <- read.csv("D:\\Coding\\Cpp\\IsingModel\\AveMnofilter.csv")
+# ave_frame <- read.csv("D:\\Coding\\Cpp\\IsingModel\\AveMnofilter.csv")
+ave_frame <- read.csv("D:\\Coding\\Cpp\\IsingModel\\AveMTest.csv")
 rownames(ave_frame) <- ave_frame$X
 ave_frame <- ave_frame[c("mean", "abs", "square")]
 
