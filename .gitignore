@@ -35,3 +35,7 @@
 *.pdf
 *.csv
 DataFiles/
+.Rproj.user
+.RData
+.Rhistory
+*.Rproj

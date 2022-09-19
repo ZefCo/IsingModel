@@ -50,13 +50,13 @@ int CheckFile(std::string filename) {
 
 
 
-csvFile parsecsv2(std::string testfile) {
+csvFile parsecsv2(fs::path inPath) {
     csvFile dataFrame;
     std::ifstream inFile;
     std::string inLine, tokens;
     int Row = 0;
 
-    inFile.open(testfile);
+    inFile.open(inPath);
 
     while(getline(inFile, inLine, '\n')) {
         // std::cout << inLine << std::endl;
@@ -179,37 +179,51 @@ int main() {
     csvFile mM;
     std::string filename;
     int return_file_code;
+    fs::path DataFiles;
 
-    filename = "D:\\Coding\\Cpp\\IsingModel\\DataFiles\\3_5K\\mME_Temp_3.500000_Size_20x20_seed_123456789_sweeps_10000000_part_1.csv";
-    // filename = "D:\\Coding\\Cpp\\IsingModel\\DataFiles\\Test.csv";
+    DataFiles = "D:\\Coding\\Cpp\\IsingModel\\DataFiles";
 
-    // return_file_code = CheckFile(filename);
+    for (fs::path subDataFiles : fs::directory_iterator{DataFiles}) {
+        csvFile localmM;
+        // std::cout << subDataFiles << std::endl;
+        
+        for (fs::path mMdata : fs::directory_iterator{subDataFiles}) {
+            std::cout << mMdata << std::endl;
+            localmM = parsecsv2(mMdata);
+            std::cout << localmM.m.size() << std::endl;
 
-    // std::cout << filestatus << std::endl;
+            std::cout << "Putting into dataframe" << std::endl;
 
-    // return_file_code = ReadFile(filename);
+            // std::copy(localmM.m.begin(), localmM.m.end() + 1, mM.m.begin());
 
-    // if (return_file_code == 0) {std::cout << "File Read Successfully" << std::endl;}
-    // else {std::cout << "Error reading file" << std::endl; exit(0);}
+        }
 
-    mM = parsecsv2(filename);
+        std::cout << std::endl;
 
-    std::cout << "Size of mM = " << mM.m.size();
 
-    for (int i = 0; i < 10; i++) {
-        std::cout << "Index = " << i << "\tm = " << mM.m.at(i) << std::endl;
     }
 
-    // std::vector<float> submM = slice(mM.m, 0, 100);
+    std::cout << mM.m.size() << std::endl;
 
-    // std::cout << submM.size();
 
-    // std::vector<float> autoCorr = autocorrelation(mM.m);
 
-    // std::cout << "Length of autocorrelation vector " << autoCorr.size() << std::endl;
 
-    // for (int i = 0; i < autoCorr.size(); i++) {
-    //     std::cout << autoCorr.at(i) << std::endl; 
+    // filename = "D:\\Coding\\Cpp\\IsingModel\\DataFiles\\3_5K\\mME_Temp_3.500000_Size_20x20_seed_123456789_sweeps_10000000_part_1.csv";
+    // // filename = "D:\\Coding\\Cpp\\IsingModel\\DataFiles\\Test.csv";
+
+    // mM = parsecsv2(filename);
+
+    // std::cout << "Size of mM = " << mM.m.size() << std::endl;
+
+    // for (int i = 0; i < 10; i++) {
+    //     std::cout << "Index = " << i << "\tm = " << mM.m.at(i) << std::endl;
     // }
+
+    // mM.index = slice(mM.index, 100000, mM.index.size());
+    // mM.m = slice(mM.m, 100000, mM.m.size());
+    // mM.M = slice(mM.M, 100000, mM.M.size());
+
+    // std::cout << mM.index.size();
+
 
 }
