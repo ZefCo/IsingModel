@@ -6,9 +6,10 @@ library('ggplot2')
 
 # ave_frame <- read.csv("D:\\Coding\\Cpp\\IsingModel\\AveM.csv")
 # ave_frame <- read.csv("D:\\Coding\\Cpp\\IsingModel\\AveMnofilter.csv")
-ave_frame <- read.csv("D:\\Coding\\Cpp\\IsingModel\\AveMTest.csv")
+ave_frame <- read.csv("D:\\Coding\\Cpp\\IsingModel\\AveMTest_million.csv")
 rownames(ave_frame) <- ave_frame$X
 ave_frame <- ave_frame[c("mean", "abs", "square")]
+tfilter <- 1000000
 
 samples_used <- 1000
 se_frame <- data.frame()
@@ -65,7 +66,7 @@ for (i in 1:length(rootfolder)) {
   
   # make sure the master frame is ordered because 10 comes before 2, 3, 4, etc.
   master_frame <- master_frame[order(master_frame$quarter), ]
-  master_frame <- master_frame[master_frame["quarter"] > 0, ]
+  master_frame <- master_frame[master_frame["quarter"] > tfilter, ]
   
   resample_frame <- sample_n(master_frame, samples_used)
   resample_frame$abs <- abs(resample_frame$m)
@@ -100,13 +101,13 @@ ave_frame$smax <- square_max
 ave_frame$temp <- rownames(ave_frame)
 
 
-mplot <- ggplot(data = ave_frame, aes(x = temp, y = mean, group = 1)) + geom_point() + geom_errorbar(aes(ymin = mmin, ymax = mmax))
+mplot <- ggplot(data = ave_frame, aes(x = temp, y = mean, group = 1)) + geom_point() + geom_errorbar(aes(ymin = mmin, ymax = mmax)) + labs(title = "m")
 print(mplot)
 
-aplot <- ggplot(data = ave_frame, aes(x = temp, y = abs, group = 1)) + geom_point() + geom_errorbar(aes(ymin = amin, ymax = amax))
+aplot <- ggplot(data = ave_frame, aes(x = temp, y = abs, group = 1)) + geom_point() + geom_errorbar(aes(ymin = amin, ymax = amax)) + labs(title = "abs(m)")
 print(aplot)
 
-splot <- ggplot(data = ave_frame, aes(x = temp, y = square, group = 1)) + geom_point() + geom_errorbar(aes(ymin = smin, ymax = smax))
+splot <- ggplot(data = ave_frame, aes(x = temp, y = square, group = 1)) + geom_point() + geom_errorbar(aes(ymin = smin, ymax = smax)) + labs(title = "m**2")
 print(splot)
 
 

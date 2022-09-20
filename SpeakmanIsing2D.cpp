@@ -421,7 +421,7 @@ void write_csv(std::string master_filename, std::vector<float> Mags, std::vector
             std::cout << "Start = " << start << " End = " << end << std::endl;
         }
 
-        fileout << "quarter,M,m\n";//,E,e\n";
+        fileout << "sweep,M,m\n";//,E,e\n";
         for (long i = start; i < end; i++) {
             long index = ((i + 1) / 1);
             fileout << index << "," << Mags.at(i) << "," << mags.at(i) << "\n"; //"," << Energy.at(i) << "," << energy.at(i) << "\n";
@@ -466,7 +466,7 @@ main()
     std::cin >> H;
     fflush(stdin);
 
-    std::cout << "Input the Maximum Number of SWEEPS\nSweep for this lattice would be " << D*D  << " Steps\nSweeps: ";
+    std::cout << "Input the Maximum Number of SWEEPS\nSweep for this lattice would be " << D*D  << " Steps\nThis simuluation does not include a warm up phase, please include that with your sweep num\nSweeps: ";
     std::cin >> max_sweeps;
     fflush(stdin);
 
@@ -475,7 +475,7 @@ main()
     std::cout << "Dimensions of Lattice: " << D << " x " << D << std::endl;
     std::cout << "Tempurature: " << T << "\tB Field: " << H << "\tJ = k (1, dimensionless)" << std::endl;
     std::cout << "Sweeps: " << max_sweeps << std::endl;
-    std::cout << "Measurement will be taken every 1/" << partial << "sweep" << std::endl;
+    // std::cout << "Measurement will be taken every 1/" << partial << "sweep" << std::endl;
 
     // this part can be used for doing 1, 2, 4, passes.
     partial = 1;
@@ -505,65 +505,85 @@ main()
     std::cin >> print_final_lattice;
     fflush(stdin);
 
-    std::cout << "Ready to begin simulation" << std::endl;
+    std::cout << "Ready to begin simulation\nNote: this does NOT include a warm up phase" << std::endl;
     pause_for_input();
+
+
+    // // This "warms up" the system
+    // for (int s = 1; s < (1000000); s++) {
+    //     for (int j = 0; j < (sweep_steps); j++){
+    //         r = random_int(0, D); int c = random_int(0, D);
+
+    //         de_index = ising_lattice.DeltaEnergy(r, c);  // These two actually do *not* return the energy, but instead return the key to the values of their energy
+    //         he_index = ising_lattice.lattice[r][c];  // You have to use these indicies to get the proper energy
+
+    //         delta_e = ising_lattice.get_boltzman(de_index, he_index);
+
+    //         int flip = flip_spin(delta_e);
+
+    //         ising_lattice.flip_spin(flip, r, c, de_index + he_index);
+    //     }
+    
+    //     // exit(0);
+    //     // Just to make sure it's working
+    //     if ((s % 100000) == 0) {
+    //         std::cout << "Completed Warmup Sweep " << s << std::endl;
+    //     }
+    // }
 
     // starting counter from 1 so I can take the modulous and output how many sweeps the simulation has completed, that way I know
     // it's still working.
     for (int s = 1; s < (max_sweeps + 1); s++) {
         std::vector<float> swe_mag_storage; std::vector<float> swe_Mag_storage;
-        // Taking the measurement every 1/n sweep. Doing a for loop in a for loop makes the most sense
-        for (int q = 1; q <=partial; q++) {
-            for (int j = 0; j < (sweep_steps / partial); j++){
-                r = random_int(0, D); int c = random_int(0, D);
+        for (int j = 0; j < (sweep_steps); j++){
+            r = random_int(0, D); int c = random_int(0, D);
 
-                de_index = ising_lattice.DeltaEnergy(r, c);  // These two actually do *not* return the energy, but instead return the key to the values of their energy
-                he_index = ising_lattice.lattice[r][c];  // You have to use these indicies to get the proper energy
+            de_index = ising_lattice.DeltaEnergy(r, c);  // These two actually do *not* return the energy, but instead return the key to the values of their energy
+            he_index = ising_lattice.lattice[r][c];  // You have to use these indicies to get the proper energy
 
-                delta_e = ising_lattice.get_boltzman(de_index, he_index);
+            delta_e = ising_lattice.get_boltzman(de_index, he_index);
 
-                int flip = flip_spin(delta_e);
+            int flip = flip_spin(delta_e);
 
-                ising_lattice.flip_spin(flip, r, c, de_index + he_index);
+            ising_lattice.flip_spin(flip, r, c, de_index + he_index);
 
-                // std::cout << "Energy = " << ising_lattice.Energy << " e = " << ising_lattice.energy << std::endl;
-                // exit(0);
+            // std::cout << "Energy = " << ising_lattice.Energy << " e = " << ising_lattice.energy << std::endl;
+            // exit(0);
 
-                // // These commented out sections are for when I want to see it step by step. Useful for when this started, but probably not
-                // // going to come back into effect anytime soon.
-                // if (flip == -1) {
-                //     ising_lattice.lattice[r][c] = ising_lattice.lattice[r][c] * flip;
-                //     ising_lattice.Mag = ising_lattice.Mag + (2 * ising_lattice.lattice[r][c]);
-                //     ising_lattice.mag = ising_lattice.Mag / ising_lattice.get_total_spins();
-                //     // std::cout << "--- Flipping Spin ---" << std::endl;
-                // }
+            // // These commented out sections are for when I want to see it step by step. Useful for when this started, but probably not
+            // // going to come back into effect anytime soon.
+            // if (flip == -1) {
+            //     ising_lattice.lattice[r][c] = ising_lattice.lattice[r][c] * flip;
+            //     ising_lattice.Mag = ising_lattice.Mag + (2 * ising_lattice.lattice[r][c]);
+            //     ising_lattice.mag = ising_lattice.Mag / ising_lattice.get_total_spins();
+            //     // std::cout << "--- Flipping Spin ---" << std::endl;
+            // }
 
-                // the changes to Mag and mag were already taken care of in ising_lattice.flip_spin(), so I can just pull the values now
-                // swe_mag_storage.push_back(ising_lattice.mag); // store each mag for averaging later
-                // swe_Mag_storage.push_back(ising_lattice.Mag); // store each Mag for averaging later
+            // the changes to Mag and mag were already taken care of in ising_lattice.flip_spin(), so I can just pull the values now
+            // swe_mag_storage.push_back(ising_lattice.mag); // store each mag for averaging later
+            // swe_Mag_storage.push_back(ising_lattice.Mag); // store each Mag for averaging later
 
-                // std::cout << "S: " << s <<" R = " << r << " C = " << c << std::endl;
-                // std::cout << "J-E (Index) = " << de_index << "\tH-E (Index) = " << he_index << "\tDelta-E = " << delta_e <<  std::endl;
-                // // std::cout << "Flip is " << flip << std::endl;
-                // std::cout << "Mag = " << ising_lattice.Mag << "\tMag per Spin = " << ising_lattice.mag << std::endl;
+            // std::cout << "S: " << s <<" R = " << r << " C = " << c << std::endl;
+            // std::cout << "J-E (Index) = " << de_index << "\tH-E (Index) = " << he_index << "\tDelta-E = " << delta_e <<  std::endl;
+            // // std::cout << "Flip is " << flip << std::endl;
+            // std::cout << "Mag = " << ising_lattice.Mag << "\tMag per Spin = " << ising_lattice.mag << std::endl;
 
-                // std::cout << "Updated Lattice: " << std::endl;
-                // ising_lattice.print_lattice();
+            // std::cout << "Updated Lattice: " << std::endl;
+            // ising_lattice.print_lattice();
 
-                // pause_for_input();
-            }
-        
-            // Grabs the last mag and Mag of the sweep and pushes it into the vector. mag and Mag were found at ising_lattice.flip_spin()
-            // So I can just grab the last value
-            mag_storage.push_back(ising_lattice.mag);
-            Mag_storage.push_back(ising_lattice.Mag);
-            // energy_storage.push_back(ising_lattice.energy);
-            // Energy_storage.push_back(ising_lattice.Energy);
-
-            // // In case you want to see when the steps are completed. Useful for knowing it's still working.
-            // std::cout << "Completed Sweep " << s << std::endl;
-            // std::cout << "Random Seed to this point " << seed << std::endl;
+            // pause_for_input();
         }
+    
+        // Grabs the last mag and Mag of the sweep and pushes it into the vector. mag and Mag were found at ising_lattice.flip_spin()
+        // So I can just grab the last value
+        mag_storage.push_back(ising_lattice.mag);
+        Mag_storage.push_back(ising_lattice.Mag);
+        // energy_storage.push_back(ising_lattice.energy);
+        // Energy_storage.push_back(ising_lattice.Energy);
+
+        // // In case you want to see when the steps are completed. Useful for knowing it's still working.
+        // std::cout << "Completed Sweep " << s << std::endl;
+        // std::cout << "Random Seed to this point " << seed << std::endl;
         // exit(0);
         // Just to make sure it's working
         if ((s % 100000) == 0) {

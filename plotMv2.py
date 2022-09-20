@@ -28,13 +28,16 @@ for subfolder in csv_folder.iterdir():
         histbins = re.split("x", histbins)[0]
         histbins = int(histbins)*int(histbins)
 
-        folder_frame = folder_frame.sort_index()
+        # folder_frame = folder_frame.sort_index()
+        # print((type(folder_frame["quarter", 0])))
+        # folder_frame = folder_frame[folder_frame["quarter" > 1000000]]
+        folder_frame = folder_frame.iloc[1000000:]
         # print(folder_frame)
         his = go.Figure(go.Histogram(x = folder_frame["m"], nbinsx = histbins))
         his.update_layout(title = f"M per spin @ {temp_name}")
 
         his.show()
-        plotly.io.write_image(his, pathlib.Path.cwd() / "DataFiles" / f"Hist_{temp_name}.pdf")
+        # plotly.io.write_image(his, pathlib.Path.cwd() / "DataFiles" / f"Hist_{temp_name}.pdf")
 
 
 

@@ -1,41 +1,44 @@
 rm(list=ls())
 
-library(tseries)
+# library(tseries)
+library(forecast)
 library(ggplot2)
 library(pracma)
 
-auto_core <- function(inseries, tmax = 2000) {
-  x <- c()
+# auto_core <- function(inseries, tmax = 2000) {
+#   x <- c()
+# 
+#   # tmax <- length(inseries)
+#   
+#   for (t in 1:(tmax - 1)) {
+#     alpha <- 1 / (tmax - t)
+#     
+#     term1 <- 0
+#     term2 <- 0
+#     term3 <- 0
+#     
+#     for (tp in 1: (tmax - t)) {
+#       term1 <- term1 + (inseries[tp] * inseries[tp + t])
+#       term2 <- term2 + (inseries[tp])
+#       term3 <- term3 + (inseries[tp + t])
+#     }
+#     
+#     x[t] <- (alpha*term1) - ((alpha*term2)*(alpha*term3))
+#     
+#     # if (x[t] < 0) {break}
+#   }
+#   
+#   x0 <- x[[1]]
+# 
+#   for (i in 1:length(x)) {
+#     x[[i]] <- x[[i]] / x0
+#   }
+# 
+#   return(x)
+#   
+# }
 
-  # tmax <- length(inseries)
-  
-  for (t in 1:(tmax - 1)) {
-    alpha <- 1 / (tmax - t)
-    
-    term1 <- 0
-    term2 <- 0
-    term3 <- 0
-    
-    for (tp in 1: (tmax - t)) {
-      term1 <- term1 + (inseries[tp] * inseries[tp + t])
-      term2 <- term2 + (inseries[tp])
-      term3 <- term3 + (inseries[tp + t])
-    }
-    
-    x[t] <- (alpha*term1) - ((alpha*term2)*(alpha*term3))
-    
-    # if (x[t] < 0) {break}
-  }
-  
-  x0 <- x[[1]]
-
-  for (i in 1:length(x)) {
-    x[[i]] <- x[[i]] / x0
-  }
-
-  return(x)
-  
-}
+tfilter <- 10000
 
 # Folder to look in
 rootpath = "D:\\Coding\\Cpp\\IsingModel\\DataFiles"
@@ -44,6 +47,8 @@ rootfolder <- list.files(path = rootpath)
 xframe <- data.frame()
 xnames <- c()
 areas <- list()
+
+lag = 5000
 
 for (i in 1:length(rootfolder)) {
   # frame for holding all the data
@@ -60,16 +65,18 @@ for (i in 1:length(rootfolder)) {
     master_frame <- rbind(master_frame, local_frame)
   }
   
-  # x <- acf(master_frame["m"], type = "correlation", lag.max = lag, plot = T)
-  # xpoints <- unlist(x$acf)
+  master_frame <- master_frame[master_frame["quarter"] > tfilter, ]
+  
+  xcf <- Acf(master_frame["m"], type = "correlation", lag.max = lag, plot = T)
+  x <- unlist(xcf$acf)
+  # # 
+  xnames[i] <- rootfolder[[i]]
   # 
-  xnames[i] <- paste("T", rootfolder[i], sep = "")
-  
-  x <- auto_core(master_frame$m)
+  # x <- auto_core(master_frame$m)
   t <- rep(1:length(x) - 1)
-  
+  # 
   xframe <- rbind(xframe, x)
-  
+  # 
   areas[rootfolder[[i]]] <- trapz(t, x)
   
 }
@@ -89,10 +96,18 @@ colnames(xframe) <- xnames
 rownames(xframe) <- t
 xframe$temp <- rownames(xframe)
 
-colnames(xframe) <- c("a", "b", "c", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", 'r', "s", "t", "u", "v", "w")
-othernames <- xnames
-othernames[length(othernames) + 1] <- "temp"
-colnames(xframe) <- othernames
+# colnames(xframe) <- c("a", "b", "c", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", 'r', "s", "t", "u", "v", "w")
+# othernames <- xnames
+# othernames[length(othernames) + 1] <- "temp"
+# colnames(xframe) <- othernames
+# 
+# hail_mary <- ggplot(data = xframe, aes(x = temp, y = T2_4K, group = 1)) + geom_line()
+# print(hail_mary)
 
-hail_mary <- ggplot(data = xframe, aes(x = temp, y = T2_4K, group = 1)) + geom_line()
-print(hail_mary)
+
+write.csv(xframe, "D:\\Coding\\Cpp\\IsingModel\\critTimeArea_2.csv")
+
+area_frame <- data.frame(a = unlist(areas), t = xnames)
+
+time_plot <- ggplot(data = area_frame, aes(x = t, y = a, group = 1)) + geom_point() + geom_line() + labs(title = "Correlation Time")
+print(time_plot)
