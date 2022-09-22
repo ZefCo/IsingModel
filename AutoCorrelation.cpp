@@ -5,7 +5,11 @@
 #include <string>
 #include <filesystem>
 #include <vector>
+#include <algorithm>
 namespace fs = std::filesystem;
+
+
+
 
 
 
@@ -23,6 +27,63 @@ std::vector<T> slice(std::vector<T> &v, int m, int n)
     std::vector<T> vec(n - m + 1);
     std::copy(v.begin() + m, v.begin() + n + 1, vec.begin());
     return vec;
+}
+
+
+
+std::vector<float> AutoCorrelation(std::vector<float> values) {
+
+    std::vector<float> xOFt;
+    float tmax = values.size();
+
+    for (float t = 0; t < tmax; t++) {
+        // std::cout << "First Iteration" << std::endl;
+        float alpha = 1 / (tmax - t);
+        float term1 = 0, term2 = 0, term3 = 0;
+
+        for (float tp = 0; tp < tmax - t; tp++) {
+            // std::cout << "Second Iteration" << std::endl;
+            term1 += values.at(tp + t) * values.at(tp + t);
+            term2 += values.at(tp);
+            term3 += values.at(tp + t);
+        }
+
+        float xt = (alpha * term1) - ((alpha * term2) * (alpha * term3));
+
+        if (xt < 0.1) break;
+
+        xOFt.push_back(xt);
+
+    }
+
+    // std::cout << "Auto Cor is of size " << xOFt.size() << std::endl;
+
+    // float xOFt0 = xOFt[0];
+    // for (int i; i < xOFt.size(); i++) {
+    //     xOFt[i] = xOFt[i] / xOFt0;
+    // }
+
+    return xOFt;
+    
+}
+
+
+
+float integrator(std::vector<float> fOFx) {
+    float area = 0;
+
+    float dx = 2.0 * fOFx.size();
+
+    for (int i = 1; i < fOFx.size() - 1; i++ ) {
+        area += fOFx.at(i);
+    }
+
+    area += fOFx.at(0) + fOFx.at(fOFx.size() - 1);
+
+    area = area * dx / 2;
+
+    return area;
+
 }
 
 
@@ -129,81 +190,96 @@ csvFile parsecsv2(fs::path inPath) {
 // }
 
 
-std::vector<float> autocorrelation(std::vector<float> inputVector) {
-    std::vector<float> acvector;
-    long tmax = inputVector.size();
+// std::vector<float> autocorrelation(std::vector<float> inputVector) {
+//     std::vector<float> acvector;
+//     long tmax = inputVector.size();
 
-    for (int t = 0; t < tmax; t++) {
-        float alpha = 1 / ((float)tmax - (float)t);
-        float m1 = 0, m2 = 0, m3 = 0;
-        float x;
-        int tpf = tmax - t;
+//     for (int t = 0; t < tmax; t++) {
+//         float alpha = 1 / ((float)tmax - (float)t);
+//         float m1 = 0, m2 = 0, m3 = 0;
+//         float x;
+//         int tpf = tmax - t;
 
-        for (int tp = 0; tp < tpf; tp++) {
-            //     // std::cout << inputVector[tp] << std::endl;
-            //     std::cout << m1 << std::endl;
-            //     m1 += inputVector[tp];
-            // }
+//         for (int tp = 0; tp < tpf; tp++) {
+//             //     // std::cout << inputVector[tp] << std::endl;
+//             //     std::cout << m1 << std::endl;
+//             //     m1 += inputVector[tp];
+//             // }
 
-            // float m1 = alpha * inputVector[]
-            for (int tp = 0; tp < tpf; tp++) {m1 += inputVector[tp];}
-            for (int tp = 0; tp < tpf; tp++) {m2 += inputVector[tp + t];}
-            for (int tp = 0; tp < tpf; tp++) {m3 += inputVector[tp + t] * inputVector[tp];}
+//             // float m1 = alpha * inputVector[]
+//             for (int tp = 0; tp < tpf; tp++) {m1 += inputVector[tp];}
+//             for (int tp = 0; tp < tpf; tp++) {m2 += inputVector[tp + t];}
+//             for (int tp = 0; tp < tpf; tp++) {m3 += inputVector[tp + t] * inputVector[tp];}
 
-            x = (alpha * m3) - (alpha * m1 * alpha * m2);
-            // // std::cout << alpha << "\t" << m1 << "\t" << m2 << "\t" << m3 << std::endl;
-            // // std::cout << x << std::endl;
+//             x = (alpha * m3) - (alpha * m1 * alpha * m2);
+//             // // std::cout << alpha << "\t" << m1 << "\t" << m2 << "\t" << m3 << std::endl;
+//             // // std::cout << x << std::endl;
 
-            acvector.push_back(x);
-        }
+//             acvector.push_back(x);
+//         }
 
-        // if (x > 0) {acvector.push_back(x);}
-        // else break;
-    }
+//         // if (x > 0) {acvector.push_back(x);}
+//         // else break;
+//     }
 
-    // for (int i = 0; i < tmax; i++) {
-    //     std::cout << inputVector[i] << std::endl;
-    // }
+//     // for (int i = 0; i < tmax; i++) {
+//     //     std::cout << inputVector[i] << std::endl;
+//     // }
 
 
-    // std::cout << "T max = " << tmax << std::endl;
-    // std::cout << "Test = " << inputVector[tmax - 1] << std::endl;
+//     // std::cout << "T max = " << tmax << std::endl;
+//     // std::cout << "Test = " << inputVector[tmax - 1] << std::endl;
 
-    return acvector;
+//     return acvector;
 
-}
+// }
 
 
 
 int main() {
-    csvFile mM;
     std::string filename;
     int return_file_code;
     fs::path DataFiles;
+    std::vector<float> tau;
 
-    DataFiles = "D:\\Coding\\Cpp\\IsingModel\\DataFiles";
+    DataFiles = "D:\\Coding\\Cpp\\IsingModel\\OtherFiles\\DataFiles\\ACTest";
+
+    int tndex = 0;
 
     for (fs::path subDataFiles : fs::directory_iterator{DataFiles}) {
-        csvFile localmM;
+        csvFile mM;
+        std::cout << "Importing files from " << subDataFiles << std::endl;
         // std::cout << subDataFiles << std::endl;
         
         for (fs::path mMdata : fs::directory_iterator{subDataFiles}) {
-            std::cout << mMdata << std::endl;
+            csvFile localmM;
+
+            // std::cout << mMdata << std::endl;
             localmM = parsecsv2(mMdata);
-            std::cout << localmM.m.size() << std::endl;
+            // std::cout << localmM.m.size() << std::endl;
 
-            std::cout << "Putting into dataframe" << std::endl;
+            // std::cout << "Putting into dataframe" << std::endl;
 
-            // std::copy(localmM.m.begin(), localmM.m.end() + 1, mM.m.begin());
+            // std::merge(mM.m.begin(), mM.m.end(), localmM.m.begin(), localmM.m.end(), back_inserter(mM.m));
+            mM.m.insert(mM.m.end(), localmM.m.begin(), localmM.m.end());
 
         }
 
-        std::cout << std::endl;
+        std::cout << "Finished Import, mM.m is of size " << mM.m.size() << std::endl;
 
+        std::vector<float> mAC = AutoCorrelation(mM.m);
+
+        std::cout << "Size of AutoCorrelation Test " << mAC.size() << std::endl;
+
+        tau.at(tndex) = integrator(mAC);
+        tndex += 1;
 
     }
 
-    std::cout << mM.m.size() << std::endl;
+    for (int i; i < tau.size(); i++) {
+        std::cout << "The area computed is " << tau.at(i) << " for Iteration " << i << std::endl;
+    }
+
 
 
 

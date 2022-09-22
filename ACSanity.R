@@ -38,6 +38,20 @@ auto_core <- function(inseries, tmax = 2000) {
   
 }
 
+
+measure_count <- function(mseries, tseries) {
+  nseries <- list()
+  
+  for (i in 1:length(mseries)) {
+    nseries[[i]] <- tseries[[i]] / (2*mseries[[i]])
+  }
+  
+  return(nseries)
+
+}
+
+
+
 tfilter <- 500000
 
 # Folder to look in
@@ -50,7 +64,9 @@ xnames <- c()
 mareas <- list()
 aareas <- list()
 sareas <- list()
-
+mtmaxs <- list()
+atmaxs <- list()
+stmaxs <- list()
 # lag = 6000
 
 for (i in 1:length(rootfolder)) {
@@ -79,8 +95,8 @@ for (i in 1:length(rootfolder)) {
   squarem <- master_frame[, "m" ]^2
   
   mx <- auto_core(master_frame$m, tmax = length(master_frame$m))
-  ax <- auto_core(master_frame$m, tmax = length(master_frame$m))
-  sx <- auto_core(master_frame$m, tmax = length(master_frame$m))
+  ax <- auto_core(absm, tmax = length(absm))
+  sx <- auto_core(squarem, tmax = length(squarem))
   mt <- rep(1:length(mx) - 1)
   at <- rep(1:length(ax) - 1)
   st <- rep(1:length(sx) - 1)
@@ -93,21 +109,27 @@ for (i in 1:length(rootfolder)) {
   # print(cor_plot)
 
   mareas[rootfolder[[i]]] <- trapz(mt, mx)
+  mtmaxs[rootfolder[[i]]] <- length(mt)
   aareas[rootfolder[[i]]] <- trapz(at, ax)
+  atmaxs[rootfolder[[i]]] <- length(at)
   sareas[rootfolder[[i]]] <- trapz(st, sx)
-
+  stmaxs[rootfolder[[i]]] <- length(st)
+    
 }
 
-tmax = length(master_frame$m)
+# tmax = length(master_frame$m)
+# 
+# 
+mn <- measure_count(mareas, mtmaxs)
+an <- measure_count(aareas, atmaxs)
+sn <- measure_count(sareas, stmaxs)
+# 
 
-
-mn <- sapply(mareas, FUN = function(x) {tmax / (2*x)})
-an <- sapply(aareas, FUN = function(x) {tmax / (2*x)})
-sn <- sapply(sareas, FUN = function(x) {tmax / (2*x)})
-
-output_data <- data.frame(Mn = mn, Mtau = unlist(mareas), An = an, Atau = unlist(aareas), Sn = sn, Stau = unlist(sareas))
-
-write.csv(output_data, "D:\\Coding\\Cpp\\IsingModel\\AreaAllN.csv")
+output_data <- data.frame(Mtau = unlist(mareas), Mtmax = unlist(mtmaxs), Mn = unlist(mn), 
+                          Atau = unlist(aareas), Atmax = unlist(atmaxs), An = unlist(an),
+                          Stau = unlist(sareas), Stmax = unlist(stmaxs), Sn = unlist(sn))
+# 
+write.csv(output_data, "D:\\Coding\\Cpp\\IsingModel\\AreaAllNv2.csv")
 
 
 

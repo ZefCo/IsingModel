@@ -9,6 +9,50 @@ library(forecast)
 library(ggplot2)
 library(pracma)
 
+
+
+summation <- function() {
+  term1 <- 0
+  term2 <- 0
+  term3 <- 0
+}
+
+
+
+ac_fft <- function(inseries) {
+  return_thing <- 0
+  tmax <- length(inseries)
+  
+  print(class(inseries[[1]]))
+  
+  ac_tilde <- fft(unlist(inseries))
+  
+  term1 <- 0
+  term2 <- 0
+  term3 <- 0
+  
+  alpha <- 1 / 1
+
+  for (tp in 1: (tmax)) {
+    term1 <- term1 + (inseries[tp] * inseries[tp])
+    term2 <- term2 + inseries[tp]
+    term3 <- term3 + inseries[tp]
+  }
+
+  x0 <- (alpha * term1) - ((alpha * term2) * (alpha * term3))
+  
+  x0tilda <- as.numeric(ac_tilde[[1]])**2
+  
+  tau <- x0tilda / x0
+  # tau <- ac_tilde
+  
+  return(tau)
+  
+  
+}
+
+
+
 auto_core <- function(inseries, tmax = 2000) {
   x <- c()
   
@@ -162,27 +206,28 @@ for (i in 1:length(rootfolder)) {
   
   master_frame <- master_frame[master_frame["quarter"] > tfilter, ]
   
-  xcf <- Acf(master_frame["m"], type = "correlation", lag.max = lag, plot = T)
-  x <- unlist(xcf$acf)
+  tau <- ac_fft(master_frame["m"])
+  
+  # xcf <- Acf(master_frame["m"], type = "correlation", lag.max = lag, plot = T)
+  # x <- unlist(xcf$acf)
   # #
-  xnames[i] <- rootfolder[[i]]
+  # xnames[i] <- rootfolder[[i]]
   #
   # x <- auto_core(master_frame$m, tmax = length(master_frame$m))
-  t <- rep(1:length(x) - 1)
+  # t <- rep(1:length(x) - 1)
   
-  xt <- data.frame(x = t, y = x)
+  # xt <- data.frame(x = t, y = x)
   
   # cor_plot <- ggplot(data = xt, aes(x = x, y = y, group = 1)) + geom_line() + labs(title = rootfolder[[i]])
   # print(cor_plot)
   # 
-  areas[rootfolder[[i]]] <- trapz(t, x)
+  # areas[rootfolder[[i]]] <- trapz(t, x)
   
 }
 
-tmax = length(master_frame$m)
-n <- sapply(areas, FUN = function(x) {tmax / (2*x)})
+# tmax = length(master_frame$m)
+# n <- sapply(areas, FUN = function(x) {tmax / (2*x)})
 
 
-taus <- data.frame(n = n, tau = unlist(areas))
-write.csv(taus, "D:\\Coding\\Cpp\\IsingModel\\DifficultAreas.csv")
-
+# taus <- data.frame(n = n, tau = unlist(areas))
+# write.csv(taus, "D:\\Coding\\Cpp\\IsingModel\\DifficultAreas.csv")
