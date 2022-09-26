@@ -5,10 +5,10 @@ library(forecast)
 library(ggplot2)
 library(pracma)
 
-auto_core <- function(inseries, tmax = 2000) {
+auto_core <- function(inseries) {
   x <- c()
   
-  # tmax <- length(inseries)
+  tmax <- length(inseries)
   
   for (t in 1:(tmax - 1)) {
     alpha <- 1 / (tmax - t)
@@ -26,6 +26,8 @@ auto_core <- function(inseries, tmax = 2000) {
     x[t] <- (alpha*term1) - ((alpha*term2)*(alpha*term3))
     
     if (x[t] < 0) {break}
+    if (t > 10000) {break}
+    
   }
   
   x0 <- x[[1]]
@@ -56,7 +58,7 @@ tfilter <- 500000
 
 # Folder to look in
 # rootpath = "D:\\Coding\\Cpp\\IsingModel\\OtherFiles\\2_3_20000000"
-rootpath = "D:\\Coding\\Cpp\\IsingModel\\OtherFiles\\DataFiles"
+rootpath = "D:\\Coding\\Cpp\\IsingModel\\DataFiles"
 rootfolder <- list.files(path = rootpath)
 
 xframe <- data.frame()
@@ -94,10 +96,14 @@ for (i in 1:length(rootfolder)) {
   absm <- abs(master_frame$m)
   squarem <- master_frame[, "m" ]^2
   
-  mx <- auto_core(master_frame$m, tmax = length(master_frame$m))
-  ax <- auto_core(absm, tmax = length(absm))
-  sx <- auto_core(squarem, tmax = length(squarem))
+  mx <- auto_core(master_frame$m)
+  print("Finished X(t) for m")
+  ax <- auto_core(absm)
+  print("Finished X(t) for |m|")
+  sx <- auto_core(squarem)
+  print("Finished X(t) for m**2")
   mt <- rep(1:length(mx) - 1)
+  # print(unlist(mt))
   at <- rep(1:length(ax) - 1)
   st <- rep(1:length(sx) - 1)
 
@@ -108,12 +114,14 @@ for (i in 1:length(rootfolder)) {
   # cor_plot <- ggplot(data = xt, aes(x = x, y = y, group = 1)) + geom_line() + labs(title = rootfolder[[i]])
   # print(cor_plot)
 
-  mareas[rootfolder[[i]]] <- trapz(mt, mx)
-  mtmaxs[rootfolder[[i]]] <- length(mt)
-  aareas[rootfolder[[i]]] <- trapz(at, ax)
-  atmaxs[rootfolder[[i]]] <- length(at)
-  sareas[rootfolder[[i]]] <- trapz(st, sx)
-  stmaxs[rootfolder[[i]]] <- length(st)
+  mareas[rootfolder[[i]]] <- trapz(unlist(mt), unlist(mx))
+  mtmaxs[rootfolder[[i]]] <- length(unlist(master_frame$m))
+  aareas[rootfolder[[i]]] <- trapz(unlist(at), unlist(ax))
+  atmaxs[rootfolder[[i]]] <- length(unlist(absm))
+  sareas[rootfolder[[i]]] <- trapz(unlist(st), unlist(sx))
+  stmaxs[rootfolder[[i]]] <- length(unlist(squarem))
+  
+  print(paste("Finished", rootfolder[[i]]))
     
 }
 
@@ -129,7 +137,7 @@ output_data <- data.frame(Mtau = unlist(mareas), Mtmax = unlist(mtmaxs), Mn = un
                           Atau = unlist(aareas), Atmax = unlist(atmaxs), An = unlist(an),
                           Stau = unlist(sareas), Stmax = unlist(stmaxs), Sn = unlist(sn))
 # 
-write.csv(output_data, "D:\\Coding\\Cpp\\IsingModel\\AreaAllNv2.csv")
+write.csv(output_data, "D:\\Coding\\Cpp\\IsingModel\\AreaAllN.csv")
 
 
 

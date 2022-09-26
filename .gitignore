@@ -39,4 +39,6 @@ DataFiles/
 .RData
 .Rhistory
 *.Rproj
-OtherFiles
+OtherFiles/
+Histogram/
+ACData.RData

@@ -15,7 +15,7 @@ cortime_frame <- cortime_frame %>% select(-X)
 # Hold data for Temp Stuff, going to make plots from these later
 ave_frame <- data.frame()
 ave_names <- c()
-tfilter <- 1000000
+tfilter <- 500000
 
 
 
@@ -40,23 +40,27 @@ resampleError <- function(samples){
   samplemean <- mean(samples)
   
   n <- length(samples)
-  if (n >= 1000) {n <- 1000}
-  else if ((n < 1000) && (n > 100)) {n <- 100}
-  else {n <- n - 1}
+  if (n > 2000) {n <- 1000}
+  else if ((n < 2000) && (n > 100)) {n <- 100}
+  else {n <- as.integer(n/2)}
+  
+  subSamples <- sample(x = samples, size = n)
   
   all_rows <- seq(1, n)
+  nMeans <- c()
   
   for (nn in 1:n) {
     
     sub_n <- setdiff(all_rows, nn)
     
-    subSample <- samples[unlist(sub_n)]
-    returnMeans[[nn]] <- mean(subSample)
+    nSample <- subSamples[unlist(sub_n)]
+    nMeans[[nn]] <- mean(nSample)
   }
   
-  sigma <- sqrt(Reduce("+", lapply(returnMeans, function(x) {(x - samplemean)^2})))
-  
-  return(sigma)
+  sigma <- sqrt(Reduce("+", lapply(nMeans, function(x) {(x - samplemean)^2})))
+  returnData <- c(samplemean - sigma, samplemean, samplemean + sigma)
+
+  return(returnData)
   
 }
 
@@ -109,31 +113,32 @@ for (i in 1:length(rootfolder)) {
   sample_abs <- sample_frame[unlist(asamples), "abs"]
   sample_square <- sample_frame[unlist(ssamples), "square"]
 
-  sem <- std_error(sample_m)
-  seabs <- std_error(sample_abs)
-  sesquare <- std_error(sample_square)
+  sem <- resampleError(sample_m)
+  seabs <- resampleError(sample_abs)
+  sesquare <- resampleError(sample_square)
 
-  new_row <- c(mean(sample_m) - sem, mean(sample_m), mean(sample_m) + sem,
-               mean(sample_abs) - seabs, mean(sample_abs), mean(sample_abs) + seabs,
-               mean(sample_square) - sesquare, mean(sample_square), mean(sample_square) + sesquare)
+  new_row <- c(sem, seabs, sesquare)
 
   ave_frame <- rbind(ave_frame, new_row)
   ave_names[i] <- rootfolder[i]
+  
+  print(paste("Finished", rootfolder[[i]]))
 
 }
 
 colnames(ave_frame) <- c("mmin", "mean", "mmax", "amin", "abs", "amax", "smin", "square", "smax")
 rownames(ave_frame) <- ave_names
-# 
-# mplot <- ggplot(data = ave_frame, aes(x = rownames(ave_frame), y = mean, group = 1)) + geom_point() + geom_errorbar(aes(ymin = mmin, ymax = mmax))
-# print(mplot)
-# 
-# aplot <- ggplot(data = ave_frame, aes(x = rownames(ave_frame), y = abs, group = 1)) + geom_point() + geom_errorbar(aes(ymin = amin, ymax = amax))
-# print(aplot)
-# 
-# splot <- ggplot(data = ave_frame, aes(x = rownames(ave_frame), y = square, group = 1)) + geom_point() + geom_errorbar(aes(ymin = smin, ymax = smax))
-# print(splot)
-# 
-# 
-# # 
-# # write.csv(ave_frame, "D:\\Coding\\Cpp\\IsingModel\\AveMTest_million.csv")
+
+mplot <- ggplot(data = ave_frame, aes(x = rownames(ave_frame), y = mean, group = 1)) + geom_point() + geom_errorbar(aes(ymin = mmin, ymax = mmax)) + labs(title = "<m>") + xlab("Temp") + ylab("")
+print(mplot)
+
+aplot <- ggplot(data = ave_frame, aes(x = rownames(ave_frame), y = abs, group = 1)) + geom_point() + geom_errorbar(aes(ymin = amin, ymax = amax)) + labs(title = "<|m|>") + xlab("Temp") + ylab("")
+print(aplot)
+
+splot <- ggplot(data = ave_frame, aes(x = rownames(ave_frame), y = square, group = 1)) + geom_point() + geom_errorbar(aes(ymin = smin, ymax = smax)) + labs(title = "<m**2>") + xlab("Temp") + ylab("")
+print(splot)
+
+tplot <- ggplot(data = cortime_frame, aes(x = rownames(cortime_frame), y = Mtau, group = 1)) + geom_point() + geom_line() + labs(title = "Tau: X(t) calculated to a maximum of 10,000 points") + xlab("Temp") + ylab("")
+print(tplot)
+
+write.csv(ave_frame, "D:\\Coding\\Cpp\\IsingModel\\AveValues.csv")
