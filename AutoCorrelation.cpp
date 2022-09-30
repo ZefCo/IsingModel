@@ -51,6 +51,7 @@ std::vector<float> AutoCorrelation(std::vector<float> values) {
         float xt = (alpha * term1) - ((alpha * term2) * (alpha * term3));
 
         if (xt < 0.1) break;
+        if (t < 2500) break;
 
         xOFt.push_back(xt);
 

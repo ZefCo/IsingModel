@@ -1,9 +1,17 @@
 rm(list=ls())
 
 # library(tseries)
-library(forecast)
+# library(forecast)
 library(ggplot2)
 library(pracma)
+
+# For Linux (and Mac?) use //
+# For windows use \\
+
+rootpath = "~//Coding//IsingModel//DataFiles//10x10"
+seperator = "\\" # No need to adjust this, will be adjusted based on OS in the next line
+
+if (print(Sys.info()['sysname']) == "Linux") {seperator = "//"} 
 
 auto_core <- function(inseries) {
   x <- c()
@@ -26,7 +34,7 @@ auto_core <- function(inseries) {
     x[t] <- (alpha*term1) - ((alpha*term2)*(alpha*term3))
     
     if (x[t] < 0) {break}
-    if (t > 10000) {break}
+    if (t > 2500) {break}
     
   }
   
@@ -58,7 +66,7 @@ tfilter <- 500000
 
 # Folder to look in
 # rootpath = "D:\\Coding\\Cpp\\IsingModel\\OtherFiles\\2_3_20000000"
-rootpath = "D:\\Coding\\Cpp\\IsingModel\\DataFiles"
+
 rootfolder <- list.files(path = rootpath)
 
 xframe <- data.frame()
@@ -73,20 +81,20 @@ stmaxs <- list()
 
 for (i in 1:length(rootfolder)) {
 
-  subpath <- paste(rootpath, rootfolder[i], sep = "\\")
+  subpath <- paste(rootpath, rootfolder[i], sep = seperator)
   subfolder <- list.files(path = subpath)
 
   master_frame <- data.frame()
 
   # Iterate through the folder and put all the data into the master frame
   for (j in 1:length(subfolder)) {
-    filepath <- paste(subpath, subfolder[j], sep = "\\")
+    filepath <- paste(subpath, subfolder[j], sep = seperator)
 
     local_frame <- read.csv(filepath, header = TRUE)
     master_frame <- rbind(master_frame, local_frame)
   }
 
-  master_frame <- master_frame[master_frame["quarter"] > tfilter, ]
+  master_frame <- master_frame[master_frame["sweep"] > tfilter, ]
 
   # xcf <- Acf(master_frame["m"], type = "correlation", lag.max = lag, plot = T)
   # x <- unlist(xcf$acf)
@@ -137,7 +145,8 @@ output_data <- data.frame(Mtau = unlist(mareas), Mtmax = unlist(mtmaxs), Mn = un
                           Atau = unlist(aareas), Atmax = unlist(atmaxs), An = unlist(an),
                           Stau = unlist(sareas), Stmax = unlist(stmaxs), Sn = unlist(sn))
 # 
-write.csv(output_data, "D:\\Coding\\Cpp\\IsingModel\\AreaAllN.csv")
+# write.csv(output_data, "D:\\Coding\\Cpp\\IsingModel\\AreaAllN.csv")
+write.csv(output_data, paste(rootpath, "AreaAllN.csv", sep = seperator))
 
 
 
