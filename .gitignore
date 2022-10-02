@@ -42,3 +42,5 @@ DataFiles/
 OtherFiles/
 Histogram/
 ACData.RData
+*.RDataTmp
+*.RData

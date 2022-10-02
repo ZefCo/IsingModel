@@ -8,8 +8,11 @@ library(pracma)
 # For Linux (and Mac?) use //
 # For windows use \\
 
-lattice_size = "10x10"
-output_file = "AllAreaN_10x10_v2.csv"
+lattice_size = "20x20"
+output_file = "AllAreaN_20x20_v3.csv"
+tfilter <- 2000000
+time_names = "quarter"  #legacy problem: sometimes it's quarter, other times it sweep
+
 seperator = "\\" # No need to adjust this, will be adjusted based on OS in the next line
 
 if (print(Sys.info()['sysname']) == "Linux") {seperator = "//"} 
@@ -37,7 +40,7 @@ auto_core <- function(inseries) {
     x[t] <- (alpha*term1) - ((alpha*term2)*(alpha*term3))
     
     if (x[t] < 0) {break}
-    if (t > 2500) {break}
+    if (t > 50000) {break}
     
   }
   
@@ -65,7 +68,6 @@ measure_count <- function(mseries, tseries) {
 
 
 
-tfilter <- 500000
 
 # Folder to look in
 # rootpath = "D:\\Coding\\Cpp\\IsingModel\\OtherFiles\\2_3_20000000"
@@ -96,8 +98,11 @@ for (i in 1:length(rootfolder)) {
     local_frame <- read.csv(filepath, header = TRUE)
     master_frame <- rbind(master_frame, local_frame)
   }
+  
+  master_frame <- master_frame[order(master_frame[time_names]), ]
+  rownames(master_frame) <- 1:nrow(master_frame)
 
-  master_frame <- master_frame[master_frame["sweep"] > tfilter, ]
+  master_frame <- master_frame[master_frame[time_names] > tfilter, ]
 
   # xcf <- Acf(master_frame["m"], type = "correlation", lag.max = lag, plot = T)
   # x <- unlist(xcf$acf)
@@ -118,10 +123,14 @@ for (i in 1:length(rootfolder)) {
   at <- rep(1:length(ax) - 1)
   st <- rep(1:length(sx) - 1)
 
-  # xt <- data.frame(x = mt, y = mx)
-  # at <- data.frame(x = at, y = ax)
-  # st <- data.frame()
-  # 
+  xt <- data.frame(x = mt, y = mx)
+  write.csv(xt, file = paste(rootfolder[[i]], "XofT_m.csv", sep = seperator))
+  at <- data.frame(x = at, y = ax)
+  write.csv(xt, file = paste(rootfolder[[i]], "XofT_absm.csv", sep = seperator))
+  st <- data.frame(x = st, y = sx)
+  write.csv(xt, file = paste(rootfolder[[i]], "XofT_sqrm.csv", sep = seperator))
+    
+      # 
   # cor_plot <- ggplot(data = xt, aes(x = x, y = y, group = 1)) + geom_line() + labs(title = rootfolder[[i]])
   # print(cor_plot)
 
