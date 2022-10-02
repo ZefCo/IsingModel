@@ -8,10 +8,13 @@ library(pracma)
 # For Linux (and Mac?) use //
 # For windows use \\
 
-rootpath = "~//Coding//IsingModel//DataFiles//10x10"
+lattice_size = "10x10"
+output_file = "AllAreaN_10x10_v2.csv"
 seperator = "\\" # No need to adjust this, will be adjusted based on OS in the next line
 
 if (print(Sys.info()['sysname']) == "Linux") {seperator = "//"} 
+
+rootpath = paste("D:", "Coding", "Cpp", "IsingModel", "DataFiles", lattice_size, sep = seperator)
 
 auto_core <- function(inseries) {
   x <- c()
@@ -146,7 +149,7 @@ output_data <- data.frame(Mtau = unlist(mareas), Mtmax = unlist(mtmaxs), Mn = un
                           Stau = unlist(sareas), Stmax = unlist(stmaxs), Sn = unlist(sn))
 # 
 # write.csv(output_data, "D:\\Coding\\Cpp\\IsingModel\\AreaAllN.csv")
-write.csv(output_data, paste(rootpath, "AreaAllN.csv", sep = seperator))
+write.csv(output_data, paste(rootpath, output_file, sep = seperator))
 
 
 
