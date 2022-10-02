@@ -50,6 +50,8 @@ std::vector<float> AutoCorrelation(std::vector<float> values) {
 
         float xt = (alpha * term1) - ((alpha * term2) * (alpha * term3));
 
+        if ((int)t % 100 == 0) {std::cout << "X(t = " << t << ") calculated" << std::endl; }
+
         if (xt < 0.1) break;
 
         xOFt.push_back(xt);
@@ -242,7 +244,7 @@ int main() {
     fs::path DataFiles;
     std::vector<float> tau;
 
-    DataFiles = "D:\\Coding\\Cpp\\IsingModel\\OtherFiles\\DataFiles\\ACTest";
+    DataFiles = "D:\\Coding\\Cpp\\IsingModel\\DataFiles\\10x10";
 
     int tndex = 0;
 
