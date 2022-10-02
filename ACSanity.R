@@ -8,8 +8,8 @@ library(pracma)
 # For Linux (and Mac?) use //
 # For windows use \\
 
-lattice_size = "20x20"
-output_file = "AllAreaN_20x20_v3.csv"
+lattice_size = "80x80"
+output_file = "AllAreaN_80x80_v3.csv"
 tfilter <- 2000000
 time_names = "quarter"  #legacy problem: sometimes it's quarter, other times it sweep
 
@@ -18,6 +18,7 @@ seperator = "\\" # No need to adjust this, will be adjusted based on OS in the n
 if (print(Sys.info()['sysname']) == "Linux") {seperator = "//"} 
 
 rootpath = paste("D:", "Coding", "Cpp", "IsingModel", "DataFiles", lattice_size, sep = seperator)
+
 
 auto_core <- function(inseries) {
   x <- c()
@@ -100,10 +101,9 @@ for (i in 1:length(rootfolder)) {
   }
   
   master_frame <- master_frame[order(master_frame[time_names]), ]
-  rownames(master_frame) <- 1:nrow(master_frame)
-
   master_frame <- master_frame[master_frame[time_names] > tfilter, ]
-
+  rownames(master_frame) <- 1:nrow(master_frame)
+  
   # xcf <- Acf(master_frame["m"], type = "correlation", lag.max = lag, plot = T)
   # x <- unlist(xcf$acf)
   # # #
@@ -123,17 +123,14 @@ for (i in 1:length(rootfolder)) {
   at <- rep(1:length(ax) - 1)
   st <- rep(1:length(sx) - 1)
 
-  xt <- data.frame(x = mt, y = mx)
-  write.csv(xt, file = paste(rootfolder[[i]], "XofT_m.csv", sep = seperator))
-  at <- data.frame(x = at, y = ax)
-  write.csv(xt, file = paste(rootfolder[[i]], "XofT_absm.csv", sep = seperator))
-  st <- data.frame(x = st, y = sx)
-  write.csv(xt, file = paste(rootfolder[[i]], "XofT_sqrm.csv", sep = seperator))
+  write.csv(data.frame(x = mt, y = mx), file = paste(rootpath, rootfolder[[i]], "XofT_m.csv", sep = seperator))
+  write.csv(data.frame(x = at, y = ax), file = paste(rootpath, rootfolder[[i]], "XofT_absm.csv", sep = seperator))
+  write.csv(data.frame(x = st, y = sx), file = paste(rootpath, rootfolder[[i]], "XofT_sqrm.csv", sep = seperator))
     
       # 
   # cor_plot <- ggplot(data = xt, aes(x = x, y = y, group = 1)) + geom_line() + labs(title = rootfolder[[i]])
   # print(cor_plot)
-
+  
   mareas[rootfolder[[i]]] <- trapz(unlist(mt), unlist(mx))
   mtmaxs[rootfolder[[i]]] <- length(unlist(master_frame$m))
   aareas[rootfolder[[i]]] <- trapz(unlist(at), unlist(ax))
@@ -201,3 +198,19 @@ write.csv(output_data, paste(rootpath, output_file, sep = seperator))
 # time_plot <- ggplot(data = area_frame, aes(x = t, y = a, group = 1)) + geom_point() + geom_line() + labs(title = "Correlation Time")
 # print(time_plot)
 
+# sanity <- master_frame$m
+# sanity <- auto_core(sanity)
+# sanity <- unlist(mt)
+# sanity <- unlist(mx)
+# sanity <- trapz(unlist(mt), unlist(mx))
+# 
+# print(length(unlist(st)))
+# print(length(unlist(sx)))
+# 
+# ax <- auto_core(absm)
+# 
+# print(class(mx))
+# print(class(ax))
+# 
+# print(at <- rep(1:length(ax) - 1))
+# print(length(at))
