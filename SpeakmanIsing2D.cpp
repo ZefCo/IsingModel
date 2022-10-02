@@ -433,7 +433,7 @@ void write_csv(std::string master_filename, std::vector<float> Mags, std::vector
 
 
 // This part takes the "measurement"
-main()
+int main()
 {
 
     const float J = 1.0; 
@@ -609,6 +609,8 @@ main()
 
     write_csv(filename, Mag_storage, mag_storage); //, Energy_storage, energy_storage);
     // std::cout << "Mag, mag, E, and e were output to the file " << filename << std::endl;
+
+    return 0;
 
 
 }

@@ -53,6 +53,7 @@ std::vector<float> AutoCorrelation(std::vector<float> values) {
         if ((int)t % 100 == 0) {std::cout << "X(t = " << t << ") calculated" << std::endl; }
 
         if (xt < 0.1) break;
+        if (t < 2500) break;
 
         xOFt.push_back(xt);
 
