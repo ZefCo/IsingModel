@@ -56,11 +56,11 @@ auto_core <- function(inseries) {
 }
 
 
-measure_count <- function(mseries, tseries) {
+measure_count <- function(tau_series, tmax_series) {
   nseries <- list()
   
-  for (i in 1:length(mseries)) {
-    nseries[[i]] <- tseries[[i]] / (2*mseries[[i]])
+  for (i in 1:length(tau_series)) {
+    nseries[[i]] <- tmax_series[[i]] / (2*tau_series[[i]])
   }
   
   return(nseries)
